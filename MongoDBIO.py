@@ -38,19 +38,11 @@ def TrainDataSelect(host, port, name, password, database, collection):
     train_datas_targets = {"datas":[], "targets":[]}
     #-------------------------------------------------------------------------------
     # 以下几行根据实际情况修改
-    # for post in posts.find({}, {"_id":1, "content":1, "type":1, "cid":1}):
-    #     # print post
-    #     if post.has_key("content") and len(post["content"])>1 and post.has_key("type") and post.has_key("cid"):
-    #         train_datas_targets["datas"].append(post["content"])
-    #         Classify_Dimension = {"Type":post["type"], "District":post["cid"]["District"]}
-    #         train_datas_targets["targets"].append(Classify_Dimension)
-    #     else:
-    #         print '{"_id":ObjectId("%s")}' % post["_id"] # MongoVUE中find命令
-    for post in posts.find({}, {"_id":1, "content":1, "type":1}):
+    for post in posts.find({}, {"_id":1, "content":1, "district":1, "type":1}):
         # print post
-        if post.has_key("content") and len(post["content"])>1 and post.has_key("type"):
+        if post.has_key("content") and len(post["content"])>1 and post.has_key("district") and post.has_key("type"):
             train_datas_targets["datas"].append(post["content"])
-            Classify_Dimension = {"Type":post["type"]}
+            Classify_Dimension = {"District":post["district"], "Type":post["type"]} ## 支持多维分类
             train_datas_targets["targets"].append(Classify_Dimension)
         else:
             print '{"_id":ObjectId("%s")}' % post["_id"] # MongoVUE中find命令
@@ -66,13 +58,6 @@ def TestDataSelect(host, port, name, password, database, collection, Limit_Numbe
     test_ids_datas = {"ids":[], "datas":[]}
     #-------------------------------------------------------------------------------
     # 以下几行根据实际情况修改
-    # for post in posts.find({"test_status":{"$ne":1}}, {"_id":1, "content":1}).sort("createdtime", -1).limit(Limit_Number):
-    #     # print post
-    #     if post.has_key("content") and len(post["content"])>1:
-    #         test_ids_datas["ids"].append(post["_id"])
-    #         test_ids_datas["datas"].append(post["content"])
-    #     else:
-    #         print '{"_id":ObjectId("%s")}' % post["_id"] # MongoVUE中find命令
     for post in posts.find({"test_status":{"$ne":1}}, {"_id":1, "content":1}).limit(Limit_Number):
         # print post
         if post.has_key("content") and len(post["content"])>1:
@@ -96,8 +81,7 @@ def ResultUpdate(test_host, test_port, test_name, test_password, test_database, 
         test_target = test_targets[i]
         #-------------------------------------------------------------------------------
         # 以下几行根据实际情况修改
-        # posts.update({"_id":id}, {"$set":{"type_test":test_target["Type"], "cid_test":{"District":test_target["District"]}, "test_status":1}})
-        posts.update({"_id":id}, {"$set":{"type_test":test_target["Type"], "test_status":1}})
+        posts.update({"_id":id}, {"$set":{"district_test":test_target["District"], "type_test":test_target["Type"], "test_status":1}}) ## 支持多维分类
         #-------------------------------------------------------------------------------
         print '{"_id":ObjectId("%s")}' % id # MongoVUE中find命令
 
@@ -108,29 +92,3 @@ def ResultSave(save_host, save_port, save_name, save_password, save_database, sa
 
     for save_id_target in save_ids_targets:
         posts.save(save_id_target)
-
-
-if __name__ == '__main__':
-    SaveList = []
-    Dir = "./Reduced"
-    List = os.listdir(Dir)
-    for l in List:
-        dir_l = Dir+"/"+l
-        List_l = os.listdir(dir_l)
-        for l_l in List_l:
-            SaveList_l = {}
-            dir_l_l = dir_l+"/"+l_l
-            # print dir_l_l
-            with open(dir_l_l, "r") as fp:
-                SaveList_l["content"] = fp.read()
-            SaveList_l["type"] = l
-            SaveList.append(SaveList_l)
-    # print SaveList
-
-    save_host = "localhost"
-    save_port = 27017
-    save_name = ""
-    save_password = ""
-    save_database = "textclassify"
-    save_collection = "test_reduced"
-    ResultSave(save_host, save_port, save_name, save_password, save_database, save_collection, SaveList)

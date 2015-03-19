@@ -73,19 +73,6 @@ if __name__ == '__main__':
             test_collection = str(re.search(r'"(.*?)"', line).group(1))
         elif re.match(r'^Limit_Number', line):
             Limit_Number = int(re.search(r'.*?\s*=\s*(\d+?)\s', line).group(1))
-        # 保存集配置
-        elif re.match(r'^save_host', line):
-            save_host = str(re.search(r'"(.*?)"', line).group(1))
-        elif re.match(r'^save_port', line):
-            save_port = int(re.search(r'.*?\s*=\s*(\d+?)\s', line).group(1))
-        elif re.match(r'^save_name', line):
-            save_name = str(re.search(r'"(.*?)"', line).group(1))
-        elif re.match(r'^save_password', line):
-            save_password = str(re.search(r'"(.*?)"', line).group(1))
-        elif re.match(r'^save_database', line):
-            save_database = str(re.search(r'"(.*?)"', line).group(1))
-        elif re.match(r'^save_collection', line):
-            save_collection = str(re.search(r'"(.*?)"', line).group(1))
 
 
 #-------------------------------------------------------------------------------

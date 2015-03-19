@@ -39,7 +39,7 @@ def MakeAllWordsList(train_datasseg):
     all_words_reverse = sorted(all_words.items(), key=lambda all_word:all_word[1], reverse=True) # 内建函数sorted参数需为list
     # for i in range(len(all_words_reverse)):
     #     print "%d\t" % (i+1), all_words_reverse[i][0],"\t", all_words_reverse[i][1]
-    all_words_list = [all_words_reverse[i][0] for i in range(len(all_words_reverse))]
+    all_words_list = [all_words_reverse_i[0] for all_words_reverse_i in all_words_reverse]
     return all_words_list
 
 
