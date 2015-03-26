@@ -45,12 +45,12 @@ def TrainDataSelect(host, port, name, password, database, collection):
         "content":{"$exists":1},
         "district":{"$exists":1},
         "type":{"$exists":1},
-        "createdtime":{"$gte":starttime, "$lte":endtime}
+        "createdtime":{"$gte":starttime, "$lte":endtime},
     }):
         # print post
         if len(post["content"])>1:
             train_datas_targets["datas"].append(post["content"])
-            Classify_Dimension = {"District":post["district"], "Type":post["type"]} ## 支持多维分类
+            Classify_Dimension = {u"国家":post["district"], u"品种":post["type"]} ## 支持多维分类
             train_datas_targets["targets"].append(Classify_Dimension)
         else:
             print '{"_id":ObjectId("%s")}' % post["_id"]
@@ -66,7 +66,9 @@ def TestDataSelect(host, port, name, password, database, collection, Limit_Numbe
     test_ids_datas = {"ids":[], "datas":[]}
     #-------------------------------------------------------------------------------
     # 以下几行根据实际情况修改
-    for post in posts.find({"content":{"$exists":1}}).sort("createdtime", pymongo.DESCENDING).limit(Limit_Number):
+    for post in posts.find({
+        "content":{"$exists":1}
+    }).sort("createdtime", pymongo.DESCENDING).limit(Limit_Number):
         # print post
         if len(post["content"])>1:
             test_ids_datas["ids"].append(post["_id"])
@@ -89,7 +91,8 @@ def ResultUpdate(test_host, test_port, test_name, test_password, test_database, 
         test_target = test_targets[i]
         #-------------------------------------------------------------------------------
         # 以下几行根据实际情况修改
-        posts.update({"_id":id}, {"$set":{"district_test":test_target["District"], "type_test":test_target["Type"], "t_status":1}}) ## 支持多维分类
+        # posts.update({"_id":id}, {"$set":{"district_test":test_target[u"国家"], "type_test":test_target[u"品种"], "t_status":1}}) ## 支持多维分类
+        posts.update({"_id":id}, {"$set":{"district_test":test_target[u"国家"], "type_test":test_target[u"品种"], "t_status":0}}) ## 支持多维分类
         #-------------------------------------------------------------------------------
         print '{"_id":ObjectId("%s")}' % id # MongoVUE中find命令
 
