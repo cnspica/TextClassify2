@@ -36,8 +36,8 @@ def MakeAllWordsList(train_datasseg):
     # print "all_words length in all the train datas: ", len(all_words.keys())
     # key函数利用词频进行降序排序
     all_words_reverse = sorted(all_words.items(), key=lambda word_item:word_item[1], reverse=True) # 内建函数sorted参数需为list
-    for all_word_reverse in all_words_reverse:
-        print all_word_reverse[0], "\t", all_word_reverse[1]
+    # for all_word_reverse in all_words_reverse:
+    #     print all_word_reverse[0], "\t", all_word_reverse[1]
     all_words_list = [all_word_reverse[0] for all_word_reverse in all_words_reverse if len(all_word_reverse[0])>1]
     return all_words_list
 
