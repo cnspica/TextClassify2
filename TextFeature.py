@@ -1,10 +1,11 @@
-__author__ = 'LiNing'
 #coding: utf-8
+from __future__ import division
+__author__ = 'LiNing'
 
 
 def TextBool(words_feature, text):
     bool_features = []
-    words = set(text)
+    words = sorted(list(set(text)))
     for word_feature in words_feature: # 根据words_feature生成每个text的feature
         if word_feature in words:
             bool_features.append(1)
@@ -18,8 +19,8 @@ def ComputeTf(words_feature, text): # 每个text的tf
     tf_features = []
     for word_feature in words_feature:
         word_count = text.count(word_feature)
-        length = float(len(text))
-        tf = word_count/length # 把一个数转为float型
+        length = len(text)
+        tf = word_count/length
         # tf_result[word_feature] = tf_result.get(word_feature, tf)
         tf_results[word_feature] = tf
         tf_features.append(tf)

@@ -1,5 +1,5 @@
-__author__ = 'LiNing'
 #coding: utf-8
+__author__ = 'LiNing'
 
 import os
 import pymongo
@@ -38,16 +38,16 @@ def TrainDataSelect(host, port, name, password, database, collection):
     train_datas_targets = {"datas":[], "targets":[]}
     #-------------------------------------------------------------------------------
     # 以下几行根据实际情况修改
-    for post in posts.find({}, {"_id":1, "content":1, "district":1, "type":1}):
+    for post in posts.find():
         # print post
         if post.has_key("content") and len(post["content"])>1 and post.has_key("district") and post.has_key("type"):
             train_datas_targets["datas"].append(post["content"])
             Classify_Dimension = {"District":post["district"], "Type":post["type"]} ## 支持多维分类
             train_datas_targets["targets"].append(Classify_Dimension)
         else:
-            print '{"_id":ObjectId("%s")}' % post["_id"] # MongoVUE中find命令
+            print '{"_id":ObjectId("%s")}' % post["_id"]
     #-------------------------------------------------------------------------------
-    print "Number of Selected Documents in the Collection:", len(train_datas_targets["datas"]) # 选择数量
+    print "Number of Selected Train Documents in the Collection:", len(train_datas_targets["datas"]) # 选择数量
     return train_datas_targets
 
 
@@ -58,15 +58,15 @@ def TestDataSelect(host, port, name, password, database, collection, Limit_Numbe
     test_ids_datas = {"ids":[], "datas":[]}
     #-------------------------------------------------------------------------------
     # 以下几行根据实际情况修改
-    for post in posts.find({"test_status":{"$ne":1}}, {"_id":1, "content":1}).limit(Limit_Number):
+    for post in posts.find().limit(Limit_Number):
         # print post
         if post.has_key("content") and len(post["content"])>1:
             test_ids_datas["ids"].append(post["_id"])
             test_ids_datas["datas"].append(post["content"])
         else:
-            print '{"_id":ObjectId("%s")}' % post["_id"] # MongoVUE中find命令
+            print '{"_id":ObjectId("%s")}' % post["_id"]
     #-------------------------------------------------------------------------------
-    print "Number of Selected Documents in the Collection:", len(test_ids_datas["datas"]) # 选择数量
+    print "Number of Selected Test Documents in the Collection:", len(test_ids_datas["datas"]) # 选择数量
     return test_ids_datas
 
 

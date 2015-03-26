@@ -1,8 +1,8 @@
-__author__ = 'LiNing'  
 # coding: utf-8
+__author__ = 'LiNing'
+
 
 import re
-from sys import exit
 from os.path import exists
 import simplejson as json
 
@@ -29,15 +29,11 @@ import numpy as np
 if __name__ == '__main__':
 #-------------------------------------------------------------------------------
     try:
-        # fp = open("./Config/config_eng", "r") # 英文
-        fp = open("./Config/config_chs", "r") # 中文
-        lines = fp.readlines() # list
-        # print lines
-        fp.close()
+        with open("./Config/config", "r") as fp:
+            lines = fp.readlines() # list
     except Exception as e:
         print e
-        print "error"
-        exit(1) # 有错误退出
+        exit()
     for line in lines:
         # 检测语言
         if re.match(r'^lag', line):
@@ -83,39 +79,29 @@ if __name__ == '__main__':
             train_datas_targets = TrainDataSelect(train_host, train_port, train_name, train_password, train_database, train_collection)
         except Exception as e:
             print e
-            print "error"
-            exit(1)
+            exit()
         train_datasseg = TextSeg(train_datas_targets["datas"], lag)
         # 由训练集生成单词库all_words_list
         all_words_list = MakeAllWordsList(train_datasseg)
         train_datasseg_targets_wordlist = {"datas":train_datasseg, "targets":train_datas_targets["targets"], "wordlist":all_words_list}
-        train_file = open(json_path, 'wb')
-        # 使用json
-        json.dump(train_datasseg_targets_wordlist, train_file)
-        train_file.close()
+        with open(json_path, 'wb') as train_file:
+            json.dump(train_datasseg_targets_wordlist, train_file)
     else:
-        # 读入数据文件
-        json_file = open(json_path, 'rb')
-        # 使用json
-        train_datasseg_targets_wordlist = json.load(json_file)
-        json_file.close()
+        with open(json_path, 'rb') as json_file:
+            train_datasseg_targets_wordlist = json.load(json_file)
 
     train_datasseg = train_datasseg_targets_wordlist["datas"] # list list
     train_targets = train_datasseg_targets_wordlist["targets"] # dict list
     all_words_list = train_datasseg_targets_wordlist["wordlist"] # list
 
-    train_targets_names_dimensions, train_targets_dimensions = Gne_Train_Dimensions(train_targets)
 
-
+#-------------------------------------------------------------------------------
     # 由训练集生成特征词word_features
     stopwords_file = "./Config/stopwords_"+lag
     stopwords_list = MakeStopWordsList(stopwords_file)
     words_feature = MakeFeatureWordsDict(all_words_list, stopwords_list, dict_size, lag)
-    print "Feature Words: ",
-    for word_feature in words_feature:
-        print word_feature,
-    print ""
 
+    train_targets_names_dimensions, train_targets_dimensions = Gne_Train_Dimensions(train_targets)
 
     # 训练集特征提取和关键词提取
     fea_train = []
@@ -142,8 +128,7 @@ if __name__ == '__main__':
         test_ids_datas = TestDataSelect(test_host, test_port, test_name, test_password, test_database, test_collection, Limit_Number)
     except Exception as e:
         print e
-        print "error"
-        exit(1)
+        exit()
     test_datasseg = TextSeg(test_ids_datas["datas"], lag)
     test_ids_datasseg = {"ids":test_ids_datas["ids"], "datas":test_datasseg}
 
@@ -151,6 +136,7 @@ if __name__ == '__main__':
     test_datasseg = test_ids_datasseg["datas"]
 
 
+#-------------------------------------------------------------------------------
     # 测试集特征提取和关键词提取
     fea_test = []
     keywords_test = []
@@ -180,8 +166,8 @@ if __name__ == '__main__':
         results = np.array(results)
         resultsT = results.T
         # 投票法
-        print "Combination of All the Classifiers for Classify Dimension \"", dimensions[i], "\":"
-        print "The Result of Combination: ",
+        print 'Combination of All the Classifiers for Classify Dimension "', dimensions[i], '":'
+        print "The Result of Combination:",
         pred_results = []
         for resultT in resultsT:
             temp_num = Vote(list(resultT))
@@ -189,11 +175,11 @@ if __name__ == '__main__':
             pred_results.append(pred_result)
             print pred_result,
         print ""
-        all_pred_results.append(pred_results) # 不能用extend
-    all_pred_results = np.array(all_pred_results)
-    all_pred_resultsT = all_pred_results.T
+        all_pred_results.append(pred_results)
 
     # 处理多维度分类结果
+    all_pred_results = np.array(all_pred_results)
+    all_pred_resultsT = all_pred_results.T
     test_targets = []
     for all_pred_resultT in all_pred_resultsT:
         test_target = {}
@@ -208,4 +194,4 @@ if __name__ == '__main__':
         ResultUpdate(test_host, test_port, test_name, test_password, test_database, test_collection, test_ids_targets)
     else:
         print "error"
-        exit(1)
+        exit()

@@ -1,5 +1,5 @@
-__author__ = 'LiNing'
 #coding: utf-8
+__author__ = 'LiNing'
 
 import re
 import nltk
@@ -8,16 +8,15 @@ from os.path import exists
 
 
 def TextSeg(datas, lag):
-    if lag == "chs": # 中文情况
-        dict_path = "./Config/dict"
-        if exists(dict_path):
-            jieba.set_dictionary(dict_path) # jieba分词词典，可以修改
+    dict_path = "./Config/dict"
+    if lag == "chs" and exists(dict_path): # 中文情况
+        jieba.set_dictionary(dict_path) # jieba分词词典，可以修改
     datasseg = []
-    for i in range(len(datas)):
+    for data in datas:
         if lag == "eng": # 英文情况
-            word_list = nltk.word_tokenize(datas[i])
+            word_list = nltk.word_tokenize(data)
         elif lag == "chs": # 中文情况
-            word_cut = jieba.cut(datas[i], cut_all=False) # 精确模式，返回的结构是一个可迭代的genertor，jieba分词可以改进词典库
+            word_cut = jieba.cut(data, cut_all=False) # 精确模式，返回的结构是一个可迭代的genertor
             word_list = list(word_cut) # genertor转化为list，每个词unicode格式
         # print " ".join(word_list)
         datasseg.append(word_list)
@@ -34,12 +33,12 @@ def MakeAllWordsList(train_datasseg):
             else:
                 all_words[word] = 1
     # 所有出现过的词数目
-    # print "all_words length in all the datas: ", len(all_words.keys())
+    # print "all_words length in all the train datas: ", len(all_words.keys())
     # key函数利用词频进行降序排序
-    all_words_reverse = sorted(all_words.items(), key=lambda all_word:all_word[1], reverse=True) # 内建函数sorted参数需为list
-    # for i in range(len(all_words_reverse)):
-    #     print "%d\t" % (i+1), all_words_reverse[i][0],"\t", all_words_reverse[i][1]
-    all_words_list = [all_words_reverse_i[0] for all_words_reverse_i in all_words_reverse]
+    all_words_reverse = sorted(all_words.items(), key=lambda word_item:word_item[1], reverse=True) # 内建函数sorted参数需为list
+    for all_word_reverse in all_words_reverse:
+        print all_word_reverse[0], "\t", all_word_reverse[1]
+    all_words_list = [all_word_reverse[0] for all_word_reverse in all_words_reverse if len(all_word_reverse[0])>1]
     return all_words_list
 
 
@@ -47,7 +46,9 @@ def MakeStopWordsList(stopwords_file):
     fp = open(stopwords_file, 'r') # stopwords_file最后有一个空行，可以添加或删除单词
     stopwords = []
     for line in fp.readlines():
-        stopwords.append(line.replace("\n", "").decode("utf-8")) # 由utf-8编码转换为unicode编码
+        stopword = line.strip().decode("utf-8") # 由utf-8编码转换为unicode编码
+        if len(stopword)>0:
+            stopwords.append(stopword)
     fp.close()
     # 去重
     stopwords_list = sorted(list(set(stopwords)))
