@@ -3,6 +3,7 @@ __author__ = 'LiNing'
 
 import os
 import pymongo
+import datetime
 
 
 class MongoDBIO:
@@ -38,7 +39,9 @@ def TrainDataSelect(host, port, name, password, database, collection):
     train_datas_targets = {"datas":[], "targets":[]}
     #-------------------------------------------------------------------------------
     # 以下几行根据实际情况修改
-    for post in posts.find():
+    starttime = datetime.datetime(2015, 1, 1)
+    endtime = datetime.datetime.now()
+    for post in posts.find({"createdtime":{"$gte":starttime, "$lte":endtime}}):
         # print post
         if post.has_key("content") and len(post["content"])>1 and post.has_key("district") and post.has_key("type"):
             train_datas_targets["datas"].append(post["content"])
@@ -58,8 +61,8 @@ def TestDataSelect(host, port, name, password, database, collection, Limit_Numbe
     test_ids_datas = {"ids":[], "datas":[]}
     #-------------------------------------------------------------------------------
     # 以下几行根据实际情况修改
-    for post in posts.find().limit(Limit_Number):
-        # print post
+    for post in posts.find().sort("createdtime", pymongo.DESCENDING).limit(Limit_Number):
+        print post
         if post.has_key("content") and len(post["content"])>1:
             test_ids_datas["ids"].append(post["_id"])
             test_ids_datas["datas"].append(post["content"])
