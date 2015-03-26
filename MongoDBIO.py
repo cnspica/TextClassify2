@@ -41,11 +41,16 @@ def TrainDataSelect(host, port, name, password, database, collection):
     # 以下几行根据实际情况修改
     starttime = datetime.datetime(2015, 1, 1)
     endtime = datetime.datetime.now()
-    for post in posts.find({"createdtime":{"$gte":starttime, "$lte":endtime}}):
-        # print post
-        if post.has_key("content") and len(post["content"])>1 and post.has_key("district") and post.has_key("type"):
+    for post in posts.find({
+        "content":{"$exists":1},
+        "country":{"$exists":1},
+        "createdtime":{"$gte":starttime, "$lte":endtime},
+        "t_status":1
+    }):
+        print post
+        if post.has_key("content") and len(post["content"])>1 and post.has_key("country") and len(post["country"])>1:
             train_datas_targets["datas"].append(post["content"])
-            Classify_Dimension = {"District":post["district"], "Type":post["type"]} ## 支持多维分类
+            Classify_Dimension = {"District":post["country"]} ## 支持多维分类
             train_datas_targets["targets"].append(Classify_Dimension)
         else:
             print '{"_id":ObjectId("%s")}' % post["_id"]
@@ -61,8 +66,8 @@ def TestDataSelect(host, port, name, password, database, collection, Limit_Numbe
     test_ids_datas = {"ids":[], "datas":[]}
     #-------------------------------------------------------------------------------
     # 以下几行根据实际情况修改
-    for post in posts.find().sort("createdtime", pymongo.DESCENDING).limit(Limit_Number):
-        # print post
+    for post in posts.find({"content":{"$exists":1}, "t_status":{"$ne":1}}).sort("createdtime", pymongo.DESCENDING).limit(Limit_Number):
+        print post
         if post.has_key("content") and len(post["content"])>1:
             test_ids_datas["ids"].append(post["_id"])
             test_ids_datas["datas"].append(post["content"])
