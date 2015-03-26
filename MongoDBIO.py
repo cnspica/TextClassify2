@@ -62,7 +62,7 @@ def TestDataSelect(host, port, name, password, database, collection, Limit_Numbe
     #-------------------------------------------------------------------------------
     # 以下几行根据实际情况修改
     for post in posts.find().sort("createdtime", pymongo.DESCENDING).limit(Limit_Number):
-        print post
+        # print post
         if post.has_key("content") and len(post["content"])>1:
             test_ids_datas["ids"].append(post["_id"])
             test_ids_datas["datas"].append(post["content"])
